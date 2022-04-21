@@ -1,4 +1,5 @@
 use rand::seq::SliceRandom;
+use std::io;
 
 /// Generate a random word
 ///
@@ -20,5 +21,12 @@ fn test_choose_word() {
 
 fn main() {
     let word = choose_word();
-    println!("Chosen word: {}", word);
+    println!("Please enter your first word");
+
+    let mut input = String::new();
+    io::stdin()
+        .read_line(&mut input)
+        .expect("error: unable to read user input");
+
+    println!("Words: {} / {}", word, input);
 }
