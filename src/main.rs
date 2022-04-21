@@ -22,7 +22,7 @@ fn test_choose_word() {
 fn read_one() -> String {
     let mut word = String::new();
     io::stdin()
-        .read_line(&mut words)
+        .read_line(&mut word)
         .ok()
         .expect("Please enter a word");
     word
