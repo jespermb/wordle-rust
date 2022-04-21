@@ -19,14 +19,30 @@ fn test_choose_word() {
     assert_eq!(word.chars().count(), 5);
 }
 
-fn main() {
-    let word = choose_word();
-    println!("Please enter your first word");
-
-    let mut input = String::new();
+fn read_one() -> String {
+    let mut word = String::new();
     io::stdin()
-        .read_line(&mut input)
-        .expect("error: unable to read user input");
+        .read_line(&mut words)
+        .ok()
+        .expect("Please enter a word");
+    word
+}
+
+fn main() {
+    const WORD_LENGTH: usize = 5;
+    let word = choose_word();
+
+    let mut input: String;
+    loop {
+        println!("Please enter your first word");
+        input = read_one().trim().to_lowercase();
+
+        if input.chars().count() == WORD_LENGTH {
+            break;
+        }
+
+        println!("Invalid word. Please enter a word thats 5 characters long.")
+    }
 
     println!("Words: {} / {}", word, input);
 }
