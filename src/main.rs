@@ -28,6 +28,43 @@ fn read_one() -> String {
     word
 }
 
+#[derive(PartialEq)]
+enum CharState {
+    Correct,
+    Wrong,
+    Exists,
+}
+struct CharacterMap {
+    character: char,
+    value: CharState,
+}
+
+fn check_word_correct(word: &str, chosen_word: &str) -> Vec<CharacterMap> {
+    let mut state: Vec<CharacterMap> = Vec::new();
+    for (i, c) in chosen_word.chars().enumerate() {
+        let mut map = CharacterMap {
+            character: c,
+            value: CharState::Wrong,
+        };
+        if does_character_exist(c, word) {
+            map.value = CharState::Exists;
+            if is_position_correct(c, i, word) {
+                map.value = CharState::Correct;
+            }
+        }
+        state.push(map);
+    }
+    return state;
+}
+
+fn does_character_exist(char: char, word: &str) -> bool {
+    return !word.find(char).is_none();
+}
+
+fn is_position_correct(char: char, index: usize, word: &str) -> bool {
+    return char == word.chars().nth(index).unwrap();
+}
+
 fn main() {
     const WORD_LENGTH: usize = 5;
     let word = choose_word();
@@ -44,5 +81,17 @@ fn main() {
         println!("Invalid word. Please enter a word thats 5 characters long.")
     }
 
+    let correct = check_word_correct(&word, &input);
+    for char in correct {
+        if char.value == CharState::Correct {
+            println!("Character {} is correct", char.character);
+        }
+        if char.value == CharState::Exists {
+            println!("Character {} exists", char.character);
+        }
+        if char.value == CharState::Wrong {
+            println!("Character {} not found", char.character);
+        }
+    }
     println!("Words: {} / {}", word, input);
 }
