@@ -1,3 +1,4 @@
+use colored::*;
 use rand::seq::SliceRandom;
 use std::io;
 
@@ -70,28 +71,40 @@ fn main() {
     let word = choose_word();
 
     let mut input: String;
+    let mut number_of_guesses = 0;
+    println!("Please enter your first word");
     loop {
-        println!("Please enter your first word");
         input = read_one().trim().to_lowercase();
+        number_of_guesses += 1;
 
         if input.chars().count() == WORD_LENGTH {
-            break;
+            let correct = check_word_correct(&word, &input);
+            let mut is_correct = true;
+            for char in correct {
+                let character = String::from(char.character.to_string());
+                if char.value == CharState::Correct {
+                    print!("{}", character.green());
+                }
+                if char.value == CharState::Exists {
+                    is_correct = false;
+                    print!("{}", character.yellow());
+                }
+                if char.value == CharState::Wrong {
+                    is_correct = false;
+                    print!("{}", character.truecolor(109, 109, 109));
+                }
+            }
+            println!("");
+            if is_correct {
+                println!("You win!");
+                break;
+            }
+            if number_of_guesses == 6 {
+                println!("You lose!");
+                break;
+            }
+        } else {
+            println!("Invalid word. Please enter a word thats 5 characters long.")
         }
-
-        println!("Invalid word. Please enter a word thats 5 characters long.")
     }
-
-    let correct = check_word_correct(&word, &input);
-    for char in correct {
-        if char.value == CharState::Correct {
-            println!("Character {} is correct", char.character);
-        }
-        if char.value == CharState::Exists {
-            println!("Character {} exists", char.character);
-        }
-        if char.value == CharState::Wrong {
-            println!("Character {} not found", char.character);
-        }
-    }
-    println!("Words: {} / {}", word, input);
 }
