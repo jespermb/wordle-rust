@@ -120,4 +120,11 @@ mod tests {
         assert_eq!(does_character_exist('a', word), true);
         assert_eq!(does_character_exist('b', word), false);
     }
+
+    #[test]
+    fn test_is_position_correct() {
+        let word = "apple";
+        assert_eq!(is_position_correct('l', 3, word), true);
+        assert_eq!(is_position_correct('p', 0, word), false);
+    }
 }
