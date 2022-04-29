@@ -113,4 +113,11 @@ mod tests {
         let word = choose_word();
         assert_eq!(word.chars().count(), 5);
     }
+
+    #[test]
+    fn test_does_character_exist() {
+        let word = "apple";
+        assert_eq!(does_character_exist('a', word), true);
+        assert_eq!(does_character_exist('b', word), false);
+    }
 }
