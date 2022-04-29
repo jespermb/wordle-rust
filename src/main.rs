@@ -14,11 +14,6 @@ fn choose_word() -> String {
     let chosen_word: Option<&&str> = words.choose(&mut rand::thread_rng());
     return chosen_word.unwrap().to_string();
 }
-#[test]
-fn test_choose_word() {
-    let word = choose_word();
-    assert_eq!(word.chars().count(), 5);
-}
 
 fn read_one() -> String {
     let mut word = String::new();
@@ -106,5 +101,16 @@ fn main() {
         } else {
             println!("Invalid word. Please enter a word thats 5 characters long.")
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_choose_word() {
+        let word = choose_word();
+        assert_eq!(word.chars().count(), 5);
     }
 }
