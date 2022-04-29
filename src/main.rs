@@ -24,7 +24,7 @@ fn read_one() -> String {
     word
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 enum CharState {
     Correct,
     Wrong,
@@ -126,5 +126,16 @@ mod tests {
         let word = "apple";
         assert_eq!(is_position_correct('l', 3, word), true);
         assert_eq!(is_position_correct('p', 0, word), false);
+    }
+
+    #[test]
+    fn test_check_word_correct() {
+        let word = "apple";
+        let correct = check_word_correct("apple", word);
+        assert_eq!(correct[0].value, CharState::Correct);
+        assert_eq!(correct[1].value, CharState::Correct);
+        assert_eq!(correct[2].value, CharState::Correct);
+        assert_eq!(correct[3].value, CharState::Correct);
+        assert_eq!(correct[4].value, CharState::Correct);
     }
 }
