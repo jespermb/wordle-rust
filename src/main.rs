@@ -129,7 +129,7 @@ mod tests {
     }
 
     #[test]
-    fn test_check_word_correct() {
+    fn test_check_word_correct_correct() {
         let word = "apple";
         let correct = check_word_correct("apple", word);
         assert_eq!(correct[0].value, CharState::Correct);
