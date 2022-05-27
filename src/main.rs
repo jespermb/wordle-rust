@@ -1,6 +1,8 @@
 use colored::*;
 use rand::seq::SliceRandom;
+use std::collections::HashMap;
 use std::io;
+// use std::iter::Peekable;
 
 /// Generate a random word
 ///
@@ -30,25 +32,54 @@ enum CharState {
     Wrong,
     Exists,
 }
+#[derive(Debug)]
 struct CharacterMap {
     character: char,
     value: CharState,
 }
 
-fn check_word_correct(word: &str, chosen_word: &str) -> Vec<CharacterMap> {
+fn check_word_correct(game_word: &str, chosen_word: &str) -> Vec<CharacterMap> {
+    let game_word_count = count_unique_characters(&game_word);
     let mut state: Vec<CharacterMap> = Vec::new();
+    let mut current_word_count: HashMap<String, usize> = HashMap::new();
+
     for (i, c) in chosen_word.chars().enumerate() {
         let mut map = CharacterMap {
             character: c,
             value: CharState::Wrong,
         };
-        if does_character_exist(c, word) {
-            map.value = CharState::Exists;
-            if is_position_correct(c, i, word) {
-                map.value = CharState::Correct;
+        if does_character_exist(c, game_word) && is_position_correct(c, i, game_word) {
+            map.value = CharState::Correct;
+            if current_word_count.contains_key(&String::from(c)) {
+                current_word_count
+                    .insert(String::from(c), current_word_count[&String::from(c)] + 1);
+            } else {
+                current_word_count.insert(String::from(c), 1 as usize);
             }
         }
         state.push(map);
+    }
+
+    for (i, c) in chosen_word.chars().enumerate() {
+        let char = &String::from(c) as &str;
+        if does_character_exist(c, game_word) {
+            let chosen_char = game_word_count.get(&String::from(c)).unwrap();
+
+            let mut current_char_count: &usize = &0;
+            if current_word_count.contains_key(char) {
+                current_char_count = current_word_count.get(char).unwrap();
+            }
+            let mut map = state.get_mut(i).unwrap();
+            if !is_position_correct(c, i, game_word) && current_char_count < chosen_char {
+                map.value = CharState::Exists;
+                if current_word_count.contains_key(&String::from(c)) {
+                    current_word_count
+                        .insert(String::from(c), current_word_count[&String::from(c)] + 1);
+                } else {
+                    current_word_count.insert(String::from(c), 1 as usize);
+                }
+            }
+        }
     }
     return state;
 }
@@ -60,6 +91,66 @@ fn does_character_exist(char: char, word: &str) -> bool {
 fn is_position_correct(char: char, index: usize, word: &str) -> bool {
     return char == word.chars().nth(index).unwrap();
 }
+
+fn count_unique_characters(word: &str) -> HashMap<String, usize> {
+    let mut char_count: HashMap<String, usize> = HashMap::new();
+    for char in word.chars() {
+        if char_count.contains_key(&String::from(char)) {
+            char_count.insert(String::from(char), char_count[&String::from(char)] + 1);
+        } else {
+            char_count.insert(String::from(char), 1);
+        }
+    }
+
+    return char_count;
+}
+
+// struct SequentialCount<I>
+// where
+//     I: Iterator,
+// {
+//     iter: Peekable<I>,
+// }
+// impl<I> SequentialCount<I>
+// where
+//     I: Iterator,
+// {
+//     fn new(iter: I) -> Self {
+//         SequentialCount {
+//             iter: iter.peekable(),
+//         }
+//     }
+// }
+// impl<I> Iterator for SequentialCount<I>
+// where
+//     I: Iterator,
+//     I::Item: Eq,
+// {
+//     type Item = (I::Item, usize);
+
+//     fn next(&mut self) -> Option<Self::Item> {
+//         // Check the next value in the inner iterator
+//         match self.iter.next() {
+//             // There is a value, so keep it
+//             Some(head) => {
+//                 // We've seen one value so far
+//                 let mut count = 1;
+//                 // Check to see what the next value is without
+//                 // actually advancing the inner iterator
+//                 while self.iter.peek() == Some(&head) {
+//                     // It's the same value, so go ahead and consume it
+//                     self.iter.next();
+//                     count += 1;
+//                 }
+//                 // The next element doesn't match the current value
+//                 // complete this iteration
+//                 Some((head, count))
+//             }
+//             // The inner iterator is complete, so we are also complete
+//             None => None,
+//         }
+//     }
+// }
 
 fn main() {
     const WORD_LENGTH: usize = 5;
@@ -76,7 +167,7 @@ fn main() {
             let correct = check_word_correct(&word, &input);
             let mut is_correct = true;
             for char in correct {
-                let character = String::from(char.character.to_string());
+                let character = String::from(char.character);
                 if char.value == CharState::Correct {
                     print!("{}", character.green());
                 }
@@ -130,12 +221,42 @@ mod tests {
 
     #[test]
     fn test_check_word_correct_correct() {
-        let word = "apple";
-        let correct = check_word_correct("apple", word);
+        let correct = check_word_correct("apple", "apple");
         assert_eq!(correct[0].value, CharState::Correct);
         assert_eq!(correct[1].value, CharState::Correct);
         assert_eq!(correct[2].value, CharState::Correct);
         assert_eq!(correct[3].value, CharState::Correct);
         assert_eq!(correct[4].value, CharState::Correct);
+    }
+
+    #[test]
+    fn test_check_word_correct_wrong() {
+        let correct = check_word_correct("brown", "apple");
+        assert_eq!(correct[0].value, CharState::Wrong);
+        assert_eq!(correct[1].value, CharState::Wrong);
+        assert_eq!(correct[2].value, CharState::Wrong);
+        assert_eq!(correct[3].value, CharState::Wrong);
+        assert_eq!(correct[4].value, CharState::Wrong);
+    }
+
+    #[test]
+    fn test_check_word_correct_mixed() {
+        let correct = check_word_correct("cheer", "close");
+        assert_eq!(correct[0].value, CharState::Correct);
+        assert_eq!(correct[1].value, CharState::Wrong);
+        assert_eq!(correct[2].value, CharState::Wrong);
+        assert_eq!(correct[3].value, CharState::Wrong);
+        assert_eq!(correct[4].value, CharState::Exists);
+    }
+
+    #[test]
+    fn test_check_word_correct_mixed_double_e() {
+        let correct = check_word_correct("close", "elder");
+        println!("{:?}", correct);
+        assert_eq!(correct[0].value, CharState::Exists);
+        assert_eq!(correct[1].value, CharState::Correct);
+        assert_eq!(correct[2].value, CharState::Wrong);
+        assert_eq!(correct[3].value, CharState::Wrong);
+        assert_eq!(correct[4].value, CharState::Wrong);
     }
 }
