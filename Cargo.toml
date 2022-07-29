@@ -17,3 +17,17 @@ rand = "0.8.5"
 colored = "2.0.0"
 wasm-bindgen = "0.2"
 getrandom = { version = "0.2", features = ["js"] }
+console_error_panic_hook = "0.1.7"
+
+[dependencies.web-sys]
+version = "0.3.4"
+features = [
+  'Document',
+  'Element',
+  'HtmlElement',
+  'HtmlInputElement',
+  'Node',
+  'Window',
+  'InputEvent',
+  "console",
+]

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Rust wordle</title>
+  </head>
+  <body style="background-color: lightgrey">
+    <h1>Rust wordle</h1>
+    <input type="text" id="word" />
+    <button id="submit">Submit word</button>
+    <div id="word_result"></div>
+    <div id="guess_result"></div>
+    <script type="module">
+      import init, { run } from "./pkg/rust_wordle.js";
+      init();
+    </script>
+  </body>
+</html>
